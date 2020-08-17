@@ -16,24 +16,26 @@ def lane(img,a,b,c,d):
                             threshold=30,
                             minLineLength=20,
                             maxLineGap=50)
-    # avglines = m.get_avglines(lines)          # 取得左右 2 條平均線方程式
-    # if avglines is not None:
-    #     lines = m.get_sublines(img, avglines,a,c,d)  # 取得要畫出的左右 2 條線段，並以check_point判斷是否有切車道
-    #     img = m.draw_lines(img, lines[0])  # 畫出線段
-    #     ans=lines[1]
-    #     p=0
-    #     if ans==1:
-    #         p=1
-    #     if ans==2:
-    #         p=0
-    #     if (ans==0 and p==1) or (ans==1 and p==1):
-    #         cv2.putText(img, text, (10, 80), cv2.FONT_HERSHEY_PLAIN,3, (255, 0, 0), 3, cv2.LINE_AA)
+    avglines = m.get_avglines(lines)          # 取得左右 2 條平均線方程式
+    if avglines is not None:
+        lines = m.get_sublines(img, avglines,a,c,d)  # 取得要畫出的左右 2 條線段，並以check_point判斷是否有切車道
+        img = m.draw_lines(img, lines[0])  # 畫出線段
+        ans=lines[1]
+        p=0
+        if ans==1:
+            p=1
+        if ans==2:
+            p=0
+        if (ans==0 and p==1) or (ans==1 and p==1):
+            cv2.putText(img, text, (10, 80), cv2.FONT_HERSHEY_PLAIN,3, (255, 0, 0), 3, cv2.LINE_AA)
+
+# ===========================================解釋==============================================
         # cv2.putText(影像, 文字,  座標,            字型,        大小, 顏色,    線條寬度, 線條種類)
         # print(img.shape)
         # cv2.imshow('Frame', img)
 
-    cv2.imshow('Frame', img)  # 顯示影像
-    # return img
+    # cv2.imshow('Frame', img)  # 顯示影像
+    return img
     k = cv2.waitKey(1)  # 等待按鍵輸入
     if k == ord('q') or k == ord('Q'):  # 按下 Q(q) 結束迴圈
         print('exit')

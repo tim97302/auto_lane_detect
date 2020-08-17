@@ -123,10 +123,11 @@ def detect(save_img=False):
                         if count % 4 == 0:
                             d = num
                         count += 1
+                    im0=auto.lane(im0,a, b, c, d)
             fps = vid_cap.get(cv2.CAP_PROP_FPS)
             w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            im0=auto.lane(im0, a,b,c,d)
+
             # print(fps)
             # Print time (inference + NMS)
             print('%sDone. (%.3fs)' % (s, t2 - t1))

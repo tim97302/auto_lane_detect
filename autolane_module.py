@@ -6,7 +6,7 @@ from PIL import ImageStat
 def get_edge(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)    # 灰階處理
     blur = cv2.GaussianBlur(gray, (13, 13), 0)        # 高斯模糊
-    canny = cv2.Canny(blur,80,100)                # 邊緣偵測
+    canny = cv2.Canny(blur,160,180)                # 邊緣偵測
     return canny
 def get_canny(blur,low,high):
     canny=cv2.Canny(blur,low,high)
@@ -14,7 +14,8 @@ def get_canny(blur,low,high):
 
 def get_roi(img):
     mask = np.zeros_like(img)          # 全黑遮罩
-    points = np.array([[[344, 753],[747, 497],[1621, 710],[1150, 482]]]) #vios0813a
+    points = np.array([[[310, 931], [823, 622], [1310, 583], [1530, 737]]]) #vios0816
+    # points = np.array([[[344, 753],[747, 497],[1621, 710],[1150, 482]]]) #vios0813a
     # points = np.array([[[223, 1020], [642, 772], [1021, 764], [1507, 1034]]]) #vios
     # points = np.array([[[223, 1020], [792, 697], [927, 714], [1507, 1034]]])  # yaris
     cv2.fillPoly(mask, points, 255)    # 多邊三角形
@@ -56,6 +57,7 @@ def get_avglines(lines):
         print('無法同時偵測到左右邊緣')
         return None
 def get_sublines(img,avglines,a,c,d):
+    print(a,c)
     sublines=[]
     x_1=a+(c-a)/3
     x_2=a+2*(c-a)/3
@@ -69,12 +71,18 @@ def get_sublines(img,avglines,a,c,d):
         sublines.append([x1, y1, x2, y2])
         ans=1
         #偵測檢測點是否有跟車道線交叉 (判斷式有問題)
-        if (b!=slope*x_1-d or b!=slope*x_2-d):
+        if abs(slope*x_1+b-d)>1 or abs(slope*x_2+b-d)>40:
             ans=0
-        if b==slope*x_1-d or b==slope*x_2-d:
-            ans=0
-        if b==slope*a-d or b==slope*c-d:
+        if abs(slope*x_1+b-d)<=1 or abs(slope*x_2+b-d)<=40:
+            ans=1
+        if abs(slope*a+b-d)<=1 or abs(slope*c+b-d)<=40:
             ans=2
+        # if (b!=slope*x_1-d or b!=slope*x_2-d):
+        #     ans=0
+        # if b==slope*x_1-d or b==slope*x_2-d:
+        #     ans=1
+        # if b==slope*a-d or b==slope*c-d:
+        #     ans=2
     return np.array(sublines),ans
 def get_brightness_left(img,a,b,c,d):
     # mask = np.zeros_like(img)# 全黑遮罩
