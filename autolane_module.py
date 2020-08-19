@@ -57,7 +57,6 @@ def get_avglines(lines):
         print('無法同時偵測到左右邊緣')
         return None
 def get_sublines(img,avglines,a,c,d):
-    print(a,c)
     sublines=[]
     x_1=a+(c-a)/3
     x_2=a+2*(c-a)/3
@@ -70,19 +69,14 @@ def get_sublines(img,avglines,a,c,d):
         x2=int((y2 - b) / slope)
         sublines.append([x1, y1, x2, y2])
         ans=1
-        #偵測檢測點是否有跟車道線交叉 (判斷式有問題)
-        if abs(slope*x_1+b-d)>1 or abs(slope*x_2+b-d)>40:
-            ans=0
-        if abs(slope*x_1+b-d)<=1 or abs(slope*x_2+b-d)<=40:
-            ans=1
-        if abs(slope*a+b-d)<=1 or abs(slope*c+b-d)<=40:
-            ans=2
-        # if (b!=slope*x_1-d or b!=slope*x_2-d):
-        #     ans=0
-        # if b==slope*x_1-d or b==slope*x_2-d:
-        #     ans=1
-        # if b==slope*a-d or b==slope*c-d:
-        #     ans=2
+        #偵測檢測點是否有跟車道線交叉
+        # ========================試試看去絕對值====================
+        if abs(slope*x_1+b-d)>3 or abs(slope*x_2+b-d)>3:
+            ans=0 #維持現狀
+        if abs(slope*x_1+b-d)<=3 or abs(slope*x_2+b-d)<=3:
+            ans=1 #開啟標示
+        if ((slope*a+b-d)>=-2 and (slope*a+b-d)<=0)or ((slope*c+b-d)>=-2 and (slope*c+b-d)<=0):
+            ans=2 #關閉標示
     return np.array(sublines),ans
 def get_brightness_left(img,a,b,c,d):
     # mask = np.zeros_like(img)# 全黑遮罩
@@ -115,7 +109,7 @@ def get_brightness_left(img,a,b,c,d):
     h_target = int(abs(0.2 * (b - d)))
     w_target = int(abs(0.45 * (c - a)))
     crop_img = img[y_target:y_target + h_target, x_target:x_target + w_target]
-    cv2.imshow("cropped", crop_img)
+    # cv2.imshow("cropped", crop_img)
     im = Image.fromarray(cv2.cvtColor(crop_img, cv2.COLOR_BGR2RGB))
     img = im.convert('L')
     stat = ImageStat.Stat(img)

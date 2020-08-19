@@ -10,6 +10,7 @@ import turn_signal as turn
 import autolane_module as m
 
 def detect(save_img=False):
+    z = 0 #設定z為初始切車道判斷值 by Tim
     out, source, weights, view_img, save_txt, imgsz = \
         opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
@@ -75,6 +76,7 @@ def detect(save_img=False):
         count = 1
         # Process detections
         for i, det in enumerate(pred):  # detections per image
+
             if webcam:  # batch_size >= 1
                 p, s, im0 = path[i], '%g: ' % i, im0s[i].copy()
             else:
@@ -99,16 +101,18 @@ def detect(save_img=False):
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * 5 + '\n') % (cls, *xywh))  # label format
-                        print("****************************************************************")
-                        print(xywh)
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
                     # with open('text.txt', 'w', encoding='utf-8') as f:
                     #     f.write(xyxy)
-                    print("=======================================================================")
+
 
                     for i in xyxy:
+
+                        im=[]
+                        if im and im[1]:
+                            z=im[1]
                         # print(i)
                         # print(type(i))
                         #torch.tensor型式轉成numpy形式
@@ -123,7 +127,9 @@ def detect(save_img=False):
                         if count % 4 == 0:
                             d = num
                         count += 1
-                    im0=auto.lane(im0,a, b, c, d)
+                    im=auto.lane(im0,a, b, c, d,z)
+                    im0=im[0]
+                    z=im[1]
             fps = vid_cap.get(cv2.CAP_PROP_FPS)
             w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -186,5 +192,7 @@ if __name__ == '__main__':
             for opt.weights in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt']:
                 detect()
                 strip_optimizer(opt.weights)
+                print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         else:
             detect()
+            print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
